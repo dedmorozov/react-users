@@ -1,5 +1,3 @@
-/* eslint-disable no-mixed-operators */
-/* eslint-disable no-nested-ternary */
 import React, { useState, useEffect } from 'react';
 import { UsersList } from './components/UsersList/UsersList';
 import './App.scss';
@@ -9,55 +7,71 @@ export const App = () => {
   const [nameQuery, setNameQuery] = useState('');
   const [lastnameQuery, setLastnameQuery] = useState('');
   const [ageQuery, setAgeQuery] = useState('');
-  // const [isChosenSex, setChosenSex] = useState(false);
+  const [isMaleChecked, setIsMaleChecked] = useState(true);
+  const [isFemaleChecked, setIsFemaleChecked] = useState(true);
 
   useEffect(async() => {
-    const users = await loadMovies();
+    const users = await loadUsers();
 
     changeUsersList(users);
-  });
+  }, []);
 
-  const loadMovies = async() => {
+  const loadUsers = async() => {
     const response = await fetch(`https://venbest-test.herokuapp.com/`);
 
     return response.json();
   };
 
-  const filteredByName = usersList.filter(user => (
-    user.name.toLowerCase().includes(
-      nameQuery.toLowerCase(),
-    )
-  ));
+  const filled = nameQuery
+  || lastnameQuery
+  || ageQuery
+  || !isMaleChecked
+  || !isFemaleChecked;
 
-  const filteredByLastname = usersList.filter(user => (
-    user.lastname.toLowerCase().includes(
-      lastnameQuery.toLowerCase(),
-    )
-  ));
+  const filteredUsers = () => {
+    let filtered = usersList;
 
-  const filteredByAge = usersList.filter(user => (
-    user.age.toString().toLowerCase().includes(
-      ageQuery.toLowerCase(),
-    )
-  ));
+    if (nameQuery) {
+      filtered = filtered.filter(user => (
+        user.name.toLowerCase().includes(
+          nameQuery.toLowerCase(),
+        )
+      ));
+    }
 
-  // const filteredBySex = usersList.filter(user => (
-  //   user.sex.includes(
-  //     ageQuery.toLowerCase(),
-  //   )
-  // ));
+    if (lastnameQuery) {
+      filtered = filtered.filter(user => (
+        user.lastname.toLowerCase().includes(
+          lastnameQuery.toLowerCase(),
+        )
+      ));
+    }
 
-  const showedUsers = nameQuery ? filteredByName
-    : lastnameQuery ? filteredByLastname
-      : ageQuery ? filteredByAge
-        // : !isChosenSex ? filteredBySex
-        : usersList;
+    if (ageQuery) {
+      filtered = filtered.filter(user => (
+        user.age.toString().toLowerCase().includes(
+          ageQuery.toLowerCase(),
+        )
+      ));
+    }
+
+    if (!isFemaleChecked) {
+      filtered = filtered.filter(user => user.sex === 'm');
+    }
+
+    if (!isMaleChecked) {
+      filtered = filtered.filter(user => user.sex === 'f');
+    }
+
+    return filtered;
+  };
 
   const resetFilter = () => {
     setNameQuery('');
     setLastnameQuery('');
     setAgeQuery('');
-    // setChosenSex(false);
+    setIsMaleChecked(true);
+    setIsFemaleChecked(true);
   };
 
   return (
@@ -94,29 +108,35 @@ export const App = () => {
 
           <div className="header__checkboxes">
             <label>
-              <input type="checkbox" value="m" />
+              <input
+                type="checkbox"
+                value="m"
+                onClick={() => setIsMaleChecked(!isMaleChecked)}
+                checked={isMaleChecked}
+                onChange={() => {}}
+              />
               <p>Мужской</p>
             </label>
             <label>
-              <input type="checkbox" value="f" />
+              <input
+                type="checkbox"
+                value="f"
+                onClick={() => setIsFemaleChecked(!isFemaleChecked)}
+                checked={isFemaleChecked}
+                onChange={() => {}}
+              />
               <p>Женский</p>
             </label>
           </div>
         </div>
 
         <div className="header__button">
-          {
-            nameQuery
-            && <button type="button" onClick={resetFilter}>Reset filter</button>
-          || lastnameQuery
-          && <button type="button" onClick={resetFilter}>Reset filter</button>
-          || ageQuery
-          && <button type="button" onClick={resetFilter}>Reset filter</button>
-          }
+          {filled
+          && <button type="button" onClick={resetFilter}>Reset filter</button>}
         </div>
       </div>
 
-      <UsersList users={showedUsers} />
+      <UsersList users={filteredUsers()} />
     </div>
   );
 };

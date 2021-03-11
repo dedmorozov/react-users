@@ -81,6 +81,7 @@ body {
       align-items: center;
       justify-content: center;
       width: 100px;
+      cursor: pointer;
 
       input {
         padding: 5px;
@@ -90,13 +91,13 @@ body {
   }
 }
 
-@media (max-width: 376px) {
+@media (max-width: 992px) {
   .App {
 
     .header {
 
       &__filter {
-        width: 100%;
+        width: 50%;
       }
 
       &__input {
@@ -106,8 +107,15 @@ body {
   }
 }
 
-@media (max-width: 376px) {
+@media (max-width: 576px) {
   .App {
     padding: 10px;
+
+    .header {
+
+      &__filter {
+        width: 100%;
+      }
+    }
   }
 }
