@@ -1,6 +1,6 @@
 {
   "homepage": ".",
-  "name": "react-app",
+  "name": "react-users",
   "version": "0.1.0",
   "private": true,
   "dependencies": {

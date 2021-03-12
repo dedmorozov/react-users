@@ -8,10 +8,7 @@ export const UsersList = ({ users }) => (
     {users.map(user => (
       <User
         key={user.name}
-        name={user.name}
-        lastname={user.lastname}
-        age={user.age}
-        sex={user.sex}
+        {...user}
       />
     ))}
   </div>

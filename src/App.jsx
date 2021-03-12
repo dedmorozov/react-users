@@ -1,12 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { UsersList } from './components/UsersList/UsersList';
+import { loadUsers } from './api/api';
 import './App.scss';
+
+const initialValues = {
+  nameQuery: '',
+  lastnameQuery: '',
+  ageQuery: '',
+};
 
 export const App = () => {
   const [usersList, changeUsersList] = useState([]);
-  const [nameQuery, setNameQuery] = useState('');
-  const [lastnameQuery, setLastnameQuery] = useState('');
-  const [ageQuery, setAgeQuery] = useState('');
+  const [values, setValues] = useState(initialValues);
   const [isMaleChecked, setIsMaleChecked] = useState(true);
   const [isFemaleChecked, setIsFemaleChecked] = useState(true);
 
@@ -16,11 +21,11 @@ export const App = () => {
     changeUsersList(users);
   }, []);
 
-  const loadUsers = async() => {
-    const response = await fetch(`https://venbest-test.herokuapp.com/`);
-
-    return response.json();
-  };
+  const {
+    nameQuery,
+    lastnameQuery,
+    ageQuery,
+  } = values;
 
   const filled = nameQuery
   || lastnameQuery
@@ -28,8 +33,8 @@ export const App = () => {
   || !isMaleChecked
   || !isFemaleChecked;
 
-  const filteredUsers = () => {
-    let filtered = usersList;
+  const filteredUsers = (users) => {
+    let filtered = [...users];
 
     if (nameQuery) {
       filtered = filtered.filter(user => (
@@ -66,10 +71,17 @@ export const App = () => {
     return filtered;
   };
 
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+
+    setValues({
+      ...values,
+      [name]: value,
+    });
+  };
+
   const resetFilter = () => {
-    setNameQuery('');
-    setLastnameQuery('');
-    setAgeQuery('');
+    setValues(initialValues);
     setIsMaleChecked(true);
     setIsFemaleChecked(true);
   };
@@ -82,28 +94,25 @@ export const App = () => {
             type="text"
             className="header__input"
             placeholder="Search by name"
+            name="nameQuery"
             value={nameQuery}
-            onChange={(e) => {
-              setNameQuery(e.target.value);
-            }}
+            onChange={handleInputChange}
           />
           <input
             type="text"
             className="header__input"
             placeholder="Search by lastname"
+            name="lastnameQuery"
             value={lastnameQuery}
-            onChange={(e) => {
-              setLastnameQuery(e.target.value);
-            }}
+            onChange={handleInputChange}
           />
           <input
             type="text"
             className="header__input"
             placeholder="Search by age"
+            name="ageQuery"
             value={ageQuery}
-            onChange={(e) => {
-              setAgeQuery(e.target.value);
-            }}
+            onChange={handleInputChange}
           />
 
           <div className="header__checkboxes">
@@ -132,11 +141,19 @@ export const App = () => {
 
         <div className="header__button">
           {filled
-          && <button type="button" onClick={resetFilter}>Reset filter</button>}
+          && (
+            <button
+              type="button"
+              onClick={resetFilter}
+            >
+              Reset filter
+            </button>
+          )
+          }
         </div>
       </div>
 
-      <UsersList users={filteredUsers()} />
+      <UsersList users={filteredUsers(usersList)} />
     </div>
   );
 };
